@@ -1,15 +1,35 @@
 import { useState, type ComponentProps } from "react";
-
-const SIZE_OPTIONS = [32, 64, 128, 512, 1080];
+import { useWatch } from "react-hook-form";
+import { useQRForm, type QRFormData } from "../hooks/useQRForm";
+import { MAX_URL_LENGTH, SIZE_OPTIONS } from "../constants/constants";
+import { Trash2 } from "lucide-react";
 
 export default function QRForm() {
-  const [value, setValue] = useState("");
-  const [size, setSize] = useState("256");
+  const {
+    register,
+    handleSubmit,
+    // setValue,
+    // watch,
+    control,
+    formState: { errors, isSubmitting },
+  } = useQRForm();
+
   const [logo, setLogo] = useState<File | null>(null);
-  const [circularLogo, setCircularLogo] = useState(false);
+
+  const url = useWatch({
+    control,
+    name: "url",
+  });
+
+  const onSubmit = (data: QRFormData) => {
+    console.log(data);
+  };
 
   return (
-    <form className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <form
+      className="w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <div className="mb-6">
         <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
           Generate QR code
@@ -26,11 +46,17 @@ export default function QRForm() {
 
           <textarea
             id="qr-value"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            className="w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             placeholder="https://example.com"
             rows={4}
-            className="w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+            maxLength={MAX_URL_LENGTH}
+            {...register("url")}
+          />
+
+          <ValidationData
+            currentLength={url.length}
+            maxLength={MAX_URL_LENGTH}
+            errorMessage={errors.url?.message}
           />
         </div>
 
@@ -40,9 +66,8 @@ export default function QRForm() {
 
           <select
             id="qr-size"
-            value={size}
-            onChange={(e) => setSize(e.target.value)}
             className="w-full appearance-none rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
+            {...register("size")}
           >
             {SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
@@ -50,6 +75,8 @@ export default function QRForm() {
               </option>
             ))}
           </select>
+
+          <ValidationData errorMessage={errors.size?.message} />
         </div>
 
         {/* Logo Upload */}
@@ -79,7 +106,7 @@ export default function QRForm() {
               </svg>
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 grow">
               <p className="truncate text-sm font-medium text-zinc-800">
                 {!logo ? "Upload an image" : logo.name}
               </p>
@@ -93,6 +120,19 @@ export default function QRForm() {
               className="sr-only"
               onChange={(e) => setLogo(e.target.files?.[0] ?? null)}
             />
+
+            {logo && (
+              <button
+                type="button"
+                className="shrink-0 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLogo(null);
+                }}
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </label>
         </div>
 
@@ -100,9 +140,8 @@ export default function QRForm() {
         <label className="flex cursor-pointer items-center gap-3">
           <input
             type="checkbox"
-            checked={circularLogo}
-            onChange={(e) => setCircularLogo(e.target.checked)}
             className="size-4 rounded border-zinc-300 accent-zinc-900"
+            {...register("circularLogo")}
           />
 
           <span className="text-sm text-zinc-700">
@@ -113,9 +152,10 @@ export default function QRForm() {
         {/* Submit */}
         <button
           type="submit"
+          disabled={isSubmitting}
           className="w-full rounded-xl bg-zinc-950 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-4 focus:ring-zinc-200 active:scale-[0.99]"
         >
-          Generate QR code
+          {isSubmitting ? "Generating..." : "Generate QR code"}
         </button>
       </div>
     </form>
@@ -129,3 +169,28 @@ const FormLabel = ({ children, ...props }: ComponentProps<"label">) => {
     </label>
   );
 };
+
+export function ValidationData({
+  currentLength,
+  maxLength,
+  errorMessage,
+}: {
+  currentLength?: number;
+  maxLength?: number;
+  errorMessage?: string;
+}) {
+  return (
+    <div className="flex gap-2 text-xs py-0.5 px-1">
+      <div className="grow">
+        {errorMessage && <span className="text-rose-500">{errorMessage}</span>}
+      </div>
+      {maxLength && maxLength > 0 && (
+        <div className="shrink-0 text-muted">
+          <span>
+            {currentLength}/{maxLength}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
