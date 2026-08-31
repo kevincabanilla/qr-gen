@@ -26,6 +26,18 @@ function App() {
       <div className="h-screen w-screen flex flex-col md:flex-row justify-center items-center gap-4">
         <QRForm onGenerate={generateQR} />
 
+        {showQR && (
+          <div className="p-8 flex flex-col items-center gap-4">
+            <QRCodeCanvas
+              value={qrValue}
+              logoFile={logo}
+              roundedLogo={circularLogo}
+              options={{
+                width: size,
+              }}
+            />
+          </div>
+        )}
       </div>
     </main>
   );
