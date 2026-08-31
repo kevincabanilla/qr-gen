@@ -9,7 +9,7 @@ export interface DownloadButtonProps {
 
 export function DownloadButton({ onDownload }: DownloadButtonProps) {
   const [open, setOpen] = useState(false);
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>(128);
+  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>(256);
 
   return (
     <div className="relative inline-flex">
