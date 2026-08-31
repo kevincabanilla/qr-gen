@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import QRCode, { type QRCodeRenderersOptions } from "qrcode";
+import { DownloadButton } from "./DownloadButton";
+import { sanitizeFileName } from "../libs/utils";
 
 const DEFAULT_WIDTH = 400;
 const DEFAULT_MARGIN = 2;
@@ -45,7 +47,6 @@ export function QRCodeCanvas({
         if (!ctx) return;
 
         const logo = new Image();
-        logo.crossOrigin = "anonymous";
         logo.src = URL.createObjectURL(logoFile);
 
         logo.onload = () => {
@@ -111,5 +112,44 @@ export function QRCodeCanvas({
     generate();
   }, [value, logoFile, roundedLogo, options]);
 
-  return <canvas ref={canvasRef} />;
+  const downloadCanvas = (size: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const downloadCanvas = document.createElement("canvas");
+    downloadCanvas.width = size;
+    downloadCanvas.height = size;
+
+    const ctx = downloadCanvas.getContext("2d");
+
+    if (!ctx) return;
+
+    ctx.drawImage(canvas, 0, 0, downloadCanvas.width, downloadCanvas.height);
+
+    downloadCanvas.toBlob((blob) => {
+      if (!blob) return;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      const fileName = sanitizeFileName(value);
+
+      link.href = url;
+      link.download = `qrcode-${fileName}-${size}px.jpg`;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    }, "image/jpg");
+  };
+
+  return (
+    <>
+      <canvas ref={canvasRef} />
+      <DownloadButton
+        onDownload={(size) => {
+          downloadCanvas(size);
+        }}
+      />
+    </>
+  );
 }
