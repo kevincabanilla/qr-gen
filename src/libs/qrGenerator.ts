@@ -18,11 +18,11 @@ export async function generateQRCodeCanvas(
   logoFile?: File | null,
   roundedLogo?: boolean,
   options?: QRCodeRenderersOptions,
-) {
+): Promise<HTMLCanvasElement> {
   const qrOptions: QRCodeRenderersOptions = {
     width: DEFAULT_WIDTH,
     margin: DEFAULT_MARGIN,
-    errorCorrectionLevel: !logoFile ? "M" : "H", // H is important for logos
+    errorCorrectionLevel: !logoFile ? "M" : "H",
     color: {
       dark: "#000000",
       light: "#ffffff",
@@ -32,22 +32,24 @@ export async function generateQRCodeCanvas(
 
   const canvas = document.createElement("canvas");
 
-  // canvas.width = size;
-  // canvas.height = size;
-
   // Generate QR code
   await QRCode.toCanvas(canvas, text, qrOptions);
 
-  if (logoFile !== undefined && logoFile !== null) {
-    console.log("adding logo init");
+  if (logoFile) {
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) return canvas;
 
-    const logo = new Image();
-    logo.src = URL.createObjectURL(logoFile);
+    const logoUrl = URL.createObjectURL(logoFile);
 
-    logo.onload = () => {
-      console.log("logo rendered");
+    try {
+      const logo = new Image();
+
+      await new Promise<void>((resolve, reject) => {
+        logo.onload = () => resolve();
+        logo.onerror = () => reject(new Error("Failed to load logo"));
+        logo.src = logoUrl;
+      });
+
       // Use the actual rendered canvas size
       const qrSize = Math.min(canvas.width, canvas.height);
 
@@ -97,7 +99,9 @@ export async function generateQRCodeCanvas(
 
         ctx.restore();
       }
-    };
+    } finally {
+      URL.revokeObjectURL(logoUrl);
+    }
   }
 
   return canvas;
