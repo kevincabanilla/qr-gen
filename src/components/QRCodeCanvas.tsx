@@ -71,6 +71,8 @@ export function QRCodeCanvas({
               logoSize + padding * 2,
               logoSize + padding * 2,
             );
+            // Draw square logo
+            ctx.drawImage(logo, x, y, logoSize, logoSize);
           } else {
             // Circular white background
             const radius = (logoSize + padding * 2) / 2;
@@ -84,10 +86,24 @@ export function QRCodeCanvas({
               Math.PI * 2,
             );
             ctx.fill();
-          }
 
-          // Draw logo
-          ctx.drawImage(logo, x, y, logoSize, logoSize);
+            // Clip the actual logo to a circle
+            ctx.save();
+
+            ctx.beginPath();
+            ctx.arc(
+              x + logoSize / 2,
+              y + logoSize / 2,
+              logoSize / 2,
+              0,
+              Math.PI * 2,
+            );
+            ctx.clip();
+
+            ctx.drawImage(logo, x, y, logoSize, logoSize);
+
+            ctx.restore();
+          }
         };
       }
     };
