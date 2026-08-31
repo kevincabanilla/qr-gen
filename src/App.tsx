@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 import { QRCodeCanvas } from "./components/QRCodeCanvas";
 import QRForm from "./components/QRForm";
-import { DownloadButton } from "./components/DownloadButton";
 import type { QRFormData } from "./hooks/useQRForm";
 
 function App() {
@@ -24,7 +23,7 @@ function App() {
   return (
     <main>
       <div className="h-screen w-screen flex flex-col md:flex-row justify-center items-center gap-4">
-        <QRForm onGenerate={generateQR} />
+        <QRForm onGenerate={generateQR} onError={() => setShowQR(false)} />
 
         {showQR && (
           <div className="p-8 flex flex-col items-center gap-4">

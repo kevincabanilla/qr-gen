@@ -1,14 +1,15 @@
 import { useState, type ComponentProps } from "react";
-import { useWatch } from "react-hook-form";
+import { useWatch, type FieldErrors } from "react-hook-form";
 import { useQRForm, type QRFormData } from "../hooks/useQRForm";
 import { MAX_URL_LENGTH } from "../constants/constants";
 import { Trash2 } from "lucide-react";
 
 export interface QRFormProps {
   onGenerate: (data: QRFormData, logo: File | null) => void;
+  onError: (errors: FieldErrors<QRFormData>) => void;
 }
 
-export default function QRForm({ onGenerate }: QRFormProps) {
+export default function QRForm({ onGenerate, onError }: QRFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,7 +33,7 @@ export default function QRForm({ onGenerate }: QRFormProps) {
   return (
     <form
       className="w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onError)}
     >
       <div className="mb-6">
         <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
@@ -53,7 +54,6 @@ export default function QRForm({ onGenerate }: QRFormProps) {
             className="w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-4 focus:ring-zinc-100"
             placeholder="https://example.com"
             rows={4}
-            maxLength={MAX_URL_LENGTH}
             {...register("url")}
           />
 
