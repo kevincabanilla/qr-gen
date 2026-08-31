@@ -1,10 +1,14 @@
 import { useState, type ComponentProps } from "react";
 import { useWatch } from "react-hook-form";
 import { useQRForm, type QRFormData } from "../hooks/useQRForm";
-import { MAX_URL_LENGTH, SIZE_OPTIONS } from "../constants/constants";
+import { MAX_URL_LENGTH } from "../constants/constants";
 import { Trash2 } from "lucide-react";
 
-export default function QRForm() {
+export interface QRFormProps {
+  onGenerate: (data: QRFormData, logo: File | null) => void;
+}
+
+export default function QRForm({ onGenerate }: QRFormProps) {
   const {
     register,
     handleSubmit,
@@ -22,7 +26,7 @@ export default function QRForm() {
   });
 
   const onSubmit = (data: QRFormData) => {
-    console.log(data);
+    onGenerate(data, logo);
   };
 
   return (
@@ -61,7 +65,7 @@ export default function QRForm() {
         </div>
 
         {/* Size */}
-        <div>
+        {/* <div>
           <FormLabel htmlFor="qr-size">Size</FormLabel>
 
           <select
@@ -71,13 +75,13 @@ export default function QRForm() {
           >
             {SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
-                {size} px
+                {size}px
               </option>
             ))}
           </select>
 
           <ValidationData errorMessage={errors.size?.message} />
-        </div>
+        </div> */}
 
         {/* Logo Upload */}
         <div>
