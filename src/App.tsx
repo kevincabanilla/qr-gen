@@ -26,16 +26,14 @@ function App() {
         <QRForm onGenerate={generateQR} onError={() => setShowQR(false)} />
 
         {showQR && (
-          <div className="p-8 flex flex-col items-center gap-4">
-            <QRCodeCanvas
-              value={qrValue}
-              logoFile={logo}
-              roundedLogo={circularLogo}
-              options={{
-                width: size,
-              }}
-            />
-          </div>
+          <QRCodeCanvas
+            value={qrValue}
+            logoFile={logo}
+            roundedLogo={circularLogo}
+            options={{
+              width: size,
+            }}
+          />
         )}
       </div>
     </main>

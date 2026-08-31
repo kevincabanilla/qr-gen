@@ -1,12 +1,8 @@
-import { useEffect, useRef } from "react";
-import QRCode, { type QRCodeRenderersOptions } from "qrcode";
+import { useCallback, useEffect, useRef } from "react";
+import { type QRCodeRenderersOptions } from "qrcode";
+import { generateQRCodeCanvas } from "../libs/qrGenerator";
 import { DownloadButton } from "./DownloadButton";
 import { sanitizeFileName } from "../libs/utils";
-
-const DEFAULT_WIDTH = 400;
-const DEFAULT_MARGIN = 2;
-const LOGO_RATIO = 0.2;
-const LOGO_PADDING_RATIO = 0.025;
 
 export interface QRCodeCanvasProps {
   value: string;
@@ -24,132 +20,53 @@ export function QRCodeCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    let cancelled = false;
 
-    const generate = async () => {
-      const qrOptions: QRCodeRenderersOptions = {
-        width: DEFAULT_WIDTH,
-        margin: DEFAULT_MARGIN,
-        errorCorrectionLevel: !logoFile ? "M" : "H", // H is important for logos
-        color: {
-          dark: "#000000",
-          light: "#ffffff",
-        },
-        ...options,
-      };
+    generateQRCodeCanvas(value, logoFile, roundedLogo, options).then(
+      (canvas) => {
+        if (cancelled || !canvasRef.current) return;
 
-      // Generate QR code
-      await QRCode.toCanvas(canvas, value, qrOptions);
+        canvasRef.current.replaceWith(canvas);
+        canvasRef.current = canvas;
+      },
+    );
 
-      if (logoFile !== undefined && logoFile !== null) {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        const logo = new Image();
-        logo.src = URL.createObjectURL(logoFile);
-
-        logo.onload = () => {
-          // Use the actual rendered canvas size
-          const qrSize = Math.min(canvas.width, canvas.height);
-
-          // Logo is always 20% of the QR size
-          const logoSize = qrSize * LOGO_RATIO;
-
-          const x = (canvas.width - logoSize) / 2;
-          const y = (canvas.height - logoSize) / 2;
-
-          // Padding scales with QR size
-          const padding = qrSize * LOGO_PADDING_RATIO;
-
-          ctx.fillStyle = "#ffffff";
-
-          if (!roundedLogo) {
-            // Square white background
-            ctx.fillRect(
-              x - padding,
-              y - padding,
-              logoSize + padding * 2,
-              logoSize + padding * 2,
-            );
-            // Draw square logo
-            ctx.drawImage(logo, x, y, logoSize, logoSize);
-          } else {
-            // Circular white background
-            const radius = (logoSize + padding * 2) / 2;
-
-            ctx.beginPath();
-            ctx.arc(
-              canvas.width / 2,
-              canvas.height / 2,
-              radius,
-              0,
-              Math.PI * 2,
-            );
-            ctx.fill();
-
-            // Clip the actual logo to a circle
-            ctx.save();
-
-            ctx.beginPath();
-            ctx.arc(
-              x + logoSize / 2,
-              y + logoSize / 2,
-              logoSize / 2,
-              0,
-              Math.PI * 2,
-            );
-            ctx.clip();
-
-            ctx.drawImage(logo, x, y, logoSize, logoSize);
-
-            ctx.restore();
-          }
-        };
-      }
+    return () => {
+      cancelled = true;
     };
-
-    generate();
   }, [value, logoFile, roundedLogo, options]);
 
-  const downloadCanvas = (size: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const downloadCanvas = useCallback(
+    (size: number) => {
+      generateQRCodeCanvas(value, logoFile, roundedLogo, {
+        ...options,
+        width: size,
+      }).then((canvas) => {
+        canvas.toBlob((blob) => {
+          if (!blob) return;
 
-    const downloadCanvas = document.createElement("canvas");
-    downloadCanvas.width = size;
-    downloadCanvas.height = size;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
 
-    const ctx = downloadCanvas.getContext("2d");
+          const fileName = sanitizeFileName(value);
 
-    if (!ctx) return;
+          link.href = url;
+          link.target = "_blank";
+          link.download = `qrcode-${fileName}-${size}px.png`;
+          link.click();
 
-    ctx.drawImage(canvas, 0, 0, downloadCanvas.width, downloadCanvas.height);
-
-    downloadCanvas.toBlob((blob) => {
-      if (!blob) return;
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      const fileName = sanitizeFileName(value);
-
-      link.href = url;
-      link.download = `qrcode-${fileName}-${size}px.jpg`;
-      link.click();
-
-      URL.revokeObjectURL(url);
-    }, "image/jpg");
-  };
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      });
+    },
+    [value, logoFile, roundedLogo, options],
+  );
 
   return (
-    <>
+    <div className="p-8 flex flex-col items-center gap-4">
       <canvas ref={canvasRef} />
-      <DownloadButton
-        onDownload={(size) => {
-          downloadCanvas(size);
-        }}
-      />
-    </>
+
+      <DownloadButton onDownload={downloadCanvas} />
+    </div>
   );
 }
