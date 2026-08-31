@@ -8,14 +8,14 @@ const LOGO_PADDING_RATIO = 0.025;
 
 export interface QRCodeCanvasProps {
   value: string;
-  logoUrl?: string;
+  logoFile?: File | null;
   roundedLogo?: boolean;
   options?: QRCodeRenderersOptions;
 }
 
 export function QRCodeCanvas({
   value,
-  logoUrl,
+  logoFile,
   roundedLogo,
   options,
 }: QRCodeCanvasProps) {
@@ -29,7 +29,7 @@ export function QRCodeCanvas({
       const qrOptions: QRCodeRenderersOptions = {
         width: DEFAULT_WIDTH,
         margin: DEFAULT_MARGIN,
-        errorCorrectionLevel: !logoUrl ? "M" : "H", // H is important for logos
+        errorCorrectionLevel: !logoFile ? "M" : "H", // H is important for logos
         color: {
           dark: "#000000",
           light: "#ffffff",
@@ -40,13 +40,13 @@ export function QRCodeCanvas({
       // Generate QR code
       await QRCode.toCanvas(canvas, value, qrOptions);
 
-      if (logoUrl !== undefined && logoUrl !== null) {
+      if (logoFile !== undefined && logoFile !== null) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
         const logo = new Image();
         logo.crossOrigin = "anonymous";
-        logo.src = logoUrl;
+        logo.src = URL.createObjectURL(logoFile);
 
         logo.onload = () => {
           // Use the actual rendered canvas size
@@ -93,7 +93,7 @@ export function QRCodeCanvas({
     };
 
     generate();
-  }, [value, logoUrl, roundedLogo, options]);
+  }, [value, logoFile, roundedLogo, options]);
 
   return <canvas ref={canvasRef} />;
 }
