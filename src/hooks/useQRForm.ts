@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { z as zod } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  DEFAULT_SIZE,
   // IMG_FILE_TYPES,
   MAX_URL_LENGTH,
   SIZE_OPTIONS,
@@ -55,7 +56,7 @@ export function useQRForm(defaultValues?: QRFormInput) {
     resolver: zodResolver(qrFormSchema),
     defaultValues: {
       url: "",
-      size: 256,
+      size: DEFAULT_SIZE,
       circularLogo: false,
       ...defaultValues,
     },

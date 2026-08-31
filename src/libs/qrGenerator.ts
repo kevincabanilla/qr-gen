@@ -7,8 +7,8 @@ const LOGO_PADDING_RATIO = 0.025;
 
 export async function generateQR(text: string) {
   const dataUrl = await QRCode.toDataURL(text, {
-    width: 300,
-    margin: 2,
+    width: DEFAULT_WIDTH,
+    margin: DEFAULT_MARGIN,
   });
   return dataUrl;
 }
