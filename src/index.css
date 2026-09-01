@@ -2,7 +2,8 @@
 
 :root {
   letter-spacing: 0.18px;
-  background: var(--color-slate-400);
+  /* background: var(--color-slate-400); */
+  background: linear-gradient(to bottom right, #06b6d4, #a855f7, #3261F6);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
