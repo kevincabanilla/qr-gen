@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { Check, ChevronDown, Download } from "lucide-react";
 import { cn } from "../libs/utils";
-import { SIZE_OPTIONS } from "../constants/constants";
+import { DEFAULT_SIZE, SIZE_OPTIONS } from "../constants/constants";
 
 export interface DownloadButtonProps {
+  sizeOptions: number[];
   onDownload: (size: number) => void;
 }
 
-export function DownloadButton({ onDownload }: DownloadButtonProps) {
+export function DownloadButton({
+  sizeOptions,
+  onDownload,
+}: DownloadButtonProps) {
   const [open, setOpen] = useState(false);
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>(256);
+  const [size, setSize] = useState(DEFAULT_SIZE);
+
+  if (!sizeOptions.includes(size)) {
+    setSize(() => sizeOptions[0]);
+  }
 
   return (
     <div className="relative inline-flex">
@@ -77,16 +85,17 @@ export function DownloadButton({ onDownload }: DownloadButtonProps) {
                 key={option}
                 type="button"
                 role="menuitem"
+                className={cn(
+                  "flex w-full items-center justify-between rounded-lg px-2.5 py-2",
+                  "text-sm text-zinc-700 transition-colors cursor-pointer",
+                  "enabled:hover:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-default",
+                  size === option && "bg-zinc-200 font-medium",
+                )}
+                disabled={!sizeOptions.includes(option)}
                 onClick={() => {
                   setSize(option);
                   setOpen(false);
                 }}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-2.5 py-2",
-                  "text-sm text-zinc-700 transition-colors",
-                  "hover:bg-zinc-200",
-                  size === option && "bg-zinc-200 font-medium",
-                )}
               >
                 <span>{option}px</span>
 
