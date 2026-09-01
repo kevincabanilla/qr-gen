@@ -6,7 +6,7 @@ import {
   // IMG_FILE_TYPES,
   MAX_URL_LENGTH,
   SIZE_OPTIONS,
-} from "../constants/constants";
+} from "@/constants/constants";
 
 const qrFormSchema = zod.object({
   url: zod

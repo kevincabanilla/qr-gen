@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { generateQR } from "../libs/qrGenerator";
+import { generateQR } from "@/libs/qrGenerator";
 
 export function QRCodeImage({ value }: { value: string }) {
   const [QRData, setQRData] = useState("");

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, ChevronDown, Download } from "lucide-react";
-import { cn } from "../libs/utils";
-import { DEFAULT_SIZE, SIZE_OPTIONS } from "../constants/constants";
+import { cn } from "@/libs/utils";
+import { DEFAULT_SIZE, SIZE_OPTIONS } from "@/constants/constants";
 
 export interface DownloadButtonProps {
   sizeOptions: number[];

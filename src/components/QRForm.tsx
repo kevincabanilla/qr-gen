@@ -1,9 +1,9 @@
 import { useState, type ComponentProps } from "react";
 import { useWatch, type FieldErrors } from "react-hook-form";
-import { useQRForm, type QRFormData } from "../hooks/useQRForm";
-import { MAX_URL_LENGTH } from "../constants/constants";
 import { Trash2 } from "lucide-react";
-import { cn } from "../libs/utils";
+import { useQRForm, type QRFormData } from "@/hooks/useQRForm";
+import { MAX_URL_LENGTH } from "@/constants/constants";
+import { cn } from "@/libs/utils";
 
 export interface QRFormProps {
   onGenerate: (data: QRFormData, logo: File | null) => void;

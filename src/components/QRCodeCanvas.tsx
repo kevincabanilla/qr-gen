@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { type QRCodeRenderersOptions } from "qrcode";
-import { generateQRCodeCanvas } from "../libs/qrGenerator";
+import { generateQRCodeCanvas } from "@/libs/qrGenerator";
+import { sanitizeFileName } from "@/libs/utils";
+import { SIZE_OPTIONS } from "@/constants/constants";
 import { DownloadButton } from "./DownloadButton";
-import { sanitizeFileName } from "../libs/utils";
-import { SIZE_OPTIONS } from "../constants/constants";
 
 export interface QRCodeCanvasProps {
   value: string;
