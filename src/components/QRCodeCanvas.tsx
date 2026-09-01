@@ -3,6 +3,7 @@ import { type QRCodeRenderersOptions } from "qrcode";
 import { generateQRCodeCanvas } from "../libs/qrGenerator";
 import { DownloadButton } from "./DownloadButton";
 import { sanitizeFileName } from "../libs/utils";
+import { SIZE_OPTIONS } from "../constants/constants";
 
 export interface QRCodeCanvasProps {
   value: string;
@@ -62,11 +63,30 @@ export function QRCodeCanvas({
     [value, logoFile, roundedLogo, options],
   );
 
+  // This will determine the minimum download
+  // resolution size based on the content's length.
+  const getSizeOptions = () => {
+    const stringSize = value.length;
+
+    if (stringSize > 590) {
+      return SIZE_OPTIONS.slice(3); // removes 32, 64, 128
+    } else if (stringSize >= 120) {
+      return SIZE_OPTIONS.slice(2); // removes 32, 64
+    } else if (stringSize >= 14) {
+      return SIZE_OPTIONS.slice(1); // removes 32
+    } else {
+      return SIZE_OPTIONS;
+    }
+  };
+
   return (
     <div className="p-8 flex flex-col items-center gap-4">
       <canvas ref={canvasRef} />
 
-      <DownloadButton onDownload={downloadCanvas} />
+      <DownloadButton
+        sizeOptions={getSizeOptions()}
+        onDownload={downloadCanvas}
+      />
     </div>
   );
 }
