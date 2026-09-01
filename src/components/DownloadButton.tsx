@@ -27,7 +27,7 @@ export function DownloadButton({
         className={cn(
           "inline-flex h-10 items-center gap-2 px-4",
           "bg-white hover:bg-zinc-100 text-zinc-900",
-          "shadow-sm transition-colors text-sm font-medium",
+          "shadow-sm transition-colors text-xs md:text-sm font-medium",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400",
           open ? "rounded-tl-lg" : "rounded-l-lg",
         )}
@@ -87,7 +87,7 @@ export function DownloadButton({
                 role="menuitem"
                 className={cn(
                   "flex w-full items-center justify-between rounded-lg px-2.5 py-2",
-                  "text-sm text-zinc-700 transition-colors cursor-pointer",
+                  "text-xs md:text-sm text-zinc-700 transition-colors cursor-pointer",
                   "enabled:hover:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-default",
                   size === option && "bg-zinc-200 font-medium",
                 )}
